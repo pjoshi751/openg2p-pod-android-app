@@ -136,19 +136,29 @@ fun PodFormScreen(
         when (val state = submissionState) {
             is SubmissionState.Success -> {
                 Log.d("PodFormScreen", "Showing Success Snackbar: ${state.message}")
-                snackbarHostState.showSnackbar(state.message)
+                snackbarHostState.showSnackbar(
+                    message = state.message,
+                    actionLabel = "SUCCESS",
+                    duration = SnackbarDuration.Short // Auto-dismiss short
+                )
                 Log.d("PodFormScreen", "Snackbar shown, resetting state.")
                 viewModel.resetSubmissionState() // Reset state after showing message
             }
             is SubmissionState.Error -> {
                 Log.d("PodFormScreen", "Showing Error Snackbar: ${state.message}")
-                snackbarHostState.showSnackbar("Error: ${state.message}")
+                snackbarHostState.showSnackbar(
+                    message = "Error: ${state.message}",
+                    actionLabel = "ERROR",
+                    duration = SnackbarDuration.Long // Auto-dismiss long
+                )
                 Log.d("PodFormScreen", "Snackbar shown, resetting state.")
                 viewModel.resetSubmissionState() // Reset state after showing message
             }
             else -> { Log.d("PodFormScreen", "State is Idle or Loading.") }
         }
     }
+
+    val successColor = Color(0xFF4CAF50) // Define Green color
 
     Scaffold(
         topBar = {
@@ -161,7 +171,22 @@ fun PodFormScreen(
                 }
             )
         },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) } // Add SnackbarHost to display messages
+        snackbarHost = { // Customize Snackbar appearance
+            SnackbarHost(hostState = snackbarHostState) { snackbarData ->
+                val isError = snackbarData.visuals.actionLabel == "ERROR"
+                val containerColor = if (isError) {
+                    MaterialTheme.colorScheme.errorContainer // Red for errors
+                } else {
+                    successColor // Green for success
+                }
+                Snackbar(
+                    snackbarData = snackbarData,
+                    containerColor = containerColor, // Apply custom color
+                    // Optionally customize content color for better contrast
+                    contentColor = if(isError) MaterialTheme.colorScheme.onErrorContainer else Color.White
+                )
+            }
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
