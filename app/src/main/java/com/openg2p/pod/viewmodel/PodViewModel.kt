@@ -141,7 +141,7 @@ class PodViewModel : ViewModel() {
                     parts["proofs"] = proofsJsonLd.value.toRequestBody("application/ld+json".toMediaTypeOrNull()) 
                 }
 
-                // Prepare image parts and descriptions
+                // Prepare image parts and their descriptions
                 val imageParts = mutableListOf<MultipartBody.Part>()
                 val descriptionParts = mutableListOf<String>() // Collect descriptions separately
 
@@ -170,11 +170,6 @@ class PodViewModel : ViewModel() {
                 // Or the server needs to handle multiple 'descriptions' parts. The provided Python code 
                 // uses `request.form().getlist("descriptions")`, which implies the latter.
                 // Let's adjust the Retrofit call slightly and how we send descriptions.
-
-                // Create RequestBody list for descriptions
-                val descriptionRequestBodies = descriptionParts.map { 
-                    it.toRequestBody("text/plain".toMediaTypeOrNull()) 
-                }
 
                 // Create a new map excluding descriptions to avoid conflict with @Part
                 val textParts = parts.filterKeys { !it.startsWith("descriptions") } 
