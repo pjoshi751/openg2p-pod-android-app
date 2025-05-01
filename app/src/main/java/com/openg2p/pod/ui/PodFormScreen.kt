@@ -166,7 +166,7 @@ fun PodFormScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = { Text("Proof of Delivery", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     Image(
