@@ -11,7 +11,7 @@ import retrofit2.http.PartMap
 interface ApiService {
 
     @Multipart
-    @POST("proof/submit") // Assuming this is the correct path relative to the base URL
+    @POST("/api/v1/submit_proof") // Updated path with prefix
     suspend fun submitProof(
         @PartMap parts: Map<String, @JvmSuppressWildcards RequestBody>,
         @Part photos: List<MultipartBody.Part>

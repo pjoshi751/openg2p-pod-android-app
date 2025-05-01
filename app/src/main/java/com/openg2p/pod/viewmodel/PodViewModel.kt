@@ -46,7 +46,7 @@ class PodViewModel : ViewModel() {
     private val _tag = "PodViewModel"
 
     // --- Form State ---
-    val serverUrl = mutableStateOf("")
+    val serverUrl = mutableStateOf("http://10.0.2.2:8000") // Default for emulator
     val disbursementId = mutableStateOf("")
     val agentId = mutableStateOf("")
     val beneficiaryId = mutableStateOf("")
