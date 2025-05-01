@@ -126,9 +126,9 @@ class PodViewModel : ViewModel() {
 
                 // Prepare parts map
                 val parts = mutableMapOf<String, RequestBody>()
-                parts["disbursementId"] = disbursementId.value.toRequestBody("text/plain".toMediaTypeOrNull())
-                parts["agentId"] = agentId.value.toRequestBody("text/plain".toMediaTypeOrNull())
-                parts["beneficiaryId"] = beneficiaryId.value.toRequestBody("text/plain".toMediaTypeOrNull())
+                parts["disbursement_id"] = disbursementId.value.toRequestBody("text/plain".toMediaTypeOrNull())
+                parts["agent_id"] = agentId.value.toRequestBody("text/plain".toMediaTypeOrNull())
+                parts["beneficiary_id"] = beneficiaryId.value.toRequestBody("text/plain".toMediaTypeOrNull())
                 parts["latitude"] = latitude.value.toString().toRequestBody("text/plain".toMediaTypeOrNull())
                 parts["longitude"] = longitude.value.toString().toRequestBody("text/plain".toMediaTypeOrNull())
                 
@@ -143,7 +143,7 @@ class PodViewModel : ViewModel() {
 
                 // Prepare image parts and their descriptions
                 val imageParts = mutableListOf<MultipartBody.Part>()
-                val descriptionParts = mutableListOf<String>() // Collect descriptions separately
+                val descriptionRequestBodies = mutableListOf<RequestBody>() // Prepare list for ApiService
 
                 images.forEachIndexed { index, imageData ->
                     val compressedFile = compressImage(context, imageData.uri, index)
@@ -151,50 +151,21 @@ class PodViewModel : ViewModel() {
                         val requestFile = compressedFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
                         val body = MultipartBody.Part.createFormData("photos", compressedFile.name, requestFile)
                         imageParts.add(body)
-                        descriptionParts.add(imageData.description) // Add description
+                        // Convert description to RequestBody and add to the list
+                        descriptionRequestBodies.add(imageData.description.toRequestBody("text/plain".toMediaTypeOrNull()))
                     } else {
                         _submissionState.value = SubmissionState.Error("Failed to process image ${index + 1}")
                         return@launch // Stop submission if image processing fails
                     }
                 }
 
-                // Add descriptions to parts map AFTER processing all images
-                // The server code expects a list named 'descriptions'
-                descriptionParts.forEachIndexed { index, desc -> 
-                    parts["descriptions[$index]"] = desc.toRequestBody("text/plain".toMediaTypeOrNull())
-                }
+                // We now pass descriptions as a separate parameter to the API service.
+                val textParts = parts // The 'parts' map now only contains non-description, non-file fields.
 
-                // --- Important: Manual Construction for List --- 
-                // Retrofit has limitations with sending List<String> alongside files easily in @PartMap.
-                // We need to mimic how form data sends lists, often like 'descriptions[0]', 'descriptions[1]'... 
-                // Or the server needs to handle multiple 'descriptions' parts. The provided Python code 
-                // uses `request.form().getlist("descriptions")`, which implies the latter.
-                // Let's adjust the Retrofit call slightly and how we send descriptions.
+                Log.d(_tag, "Submitting proof with parts: ${textParts.keys}, images: ${imageParts.size}, descriptions: ${descriptionRequestBodies.size}")
 
-                // Create a new map excluding descriptions to avoid conflict with @Part
-                val textParts = parts.filterKeys { !it.startsWith("descriptions") } 
-
-                // *** Alternative approach if the server expects multiple parts named 'descriptions' ***
-                val finalPartsMap = mutableMapOf<String, RequestBody>()
-                finalPartsMap.putAll(textParts)
-                // Add each description as a separate part with the *same name*
-                descriptionParts.forEach { desc ->
-                    finalPartsMap["descriptions"] = desc.toRequestBody("text/plain".toMediaTypeOrNull()) 
-                    // Note: This will overwrite previous 'descriptions' in the map before sending.
-                    // This might NOT work as intended depending on OkHttp/Retrofit internals for duplicate keys.
-                    // The most robust way is often custom RequestBody or adapter if server expects list under one key.
-                }
-                 // Given the Python code uses getlist(), let's try sending multiple 'descriptions' parts.
-                // This requires a custom call structure or modifying the ApiService interface potentially.
-                // For simplicity now, let's stick to the initial @PartMap attempt and see if the Python server handles descriptions[0], descriptions[1]...
-
-                // Revert to original parts map including numbered descriptions
-                 val finalMapForCall = parts // Use the original map with descriptions[0], descriptions[1]...
-
-
-                Log.d(_tag, "Submitting proof with parts: ${finalMapForCall.keys}, images: ${imageParts.size}")
-
-                val response = apiService.submitProof(finalMapForCall, imageParts)
+                // Make the API call using the updated ApiService signature
+                val response = apiService.submitProof(textParts, imageParts, descriptionRequestBodies)
 
                 if (response.isSuccessful) {
                     _submissionState.value = SubmissionState.Success("Proof submitted successfully!")

@@ -14,7 +14,8 @@ interface ApiService {
     @POST("/api/v1/submit_proof") // Updated path with prefix
     suspend fun submitProof(
         @PartMap parts: Map<String, @JvmSuppressWildcards RequestBody>,
-        @Part photos: List<MultipartBody.Part>
+        @Part photos: List<MultipartBody.Part>,
+        @Part("descriptions") descriptions: List<@JvmSuppressWildcards RequestBody> // Send descriptions as separate parts with the same name
     ): Response<Void> // Assuming the API returns 2xx on success with no body
 
 }
