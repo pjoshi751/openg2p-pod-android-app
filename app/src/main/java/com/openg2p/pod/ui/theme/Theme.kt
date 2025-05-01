@@ -1,7 +1,9 @@
 package com.openg2p.pod.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.darkColorScheme // Add this import
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color // Import Color here
 
@@ -34,8 +36,8 @@ val md_theme_light_outline = Color(0xFF79747E)
 
 // Define a simple light color scheme
 private val LightColorScheme = lightColorScheme(
-    primary = md_theme_light_primary,
-    onPrimary = md_theme_light_onPrimary,
+    primary = OpenG2PYellow, // Set primary button color to OpenG2P Yellow
+    onPrimary = OpenG2PBlack, // Set text color on primary button to OpenG2P Black
     primaryContainer = md_theme_light_primaryContainer,
     onPrimaryContainer = md_theme_light_onPrimaryContainer,
     secondary = md_theme_light_secondary,
@@ -58,6 +60,12 @@ private val LightColorScheme = lightColorScheme(
     onSurfaceVariant = md_theme_light_onSurfaceVariant,
     outline = md_theme_light_outline
     // Other default colors are derived from these.
+)
+
+private val DarkColorScheme = darkColorScheme(
+    primary = OpenG2PYellow, // Use Yellow for primary in Dark Theme too
+    onPrimary = OpenG2PBlack, // Use Black text on Yellow in Dark Theme
+    // Other default colors to override if needed
 )
 
 @Composable
