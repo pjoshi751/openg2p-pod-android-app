@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -40,6 +41,7 @@ import androidx.lifecycle.viewModelScope
 import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.permissions.*
 import com.google.android.gms.location.LocationServices
+import com.openg2p.pod.R
 import com.openg2p.pod.viewmodel.ImageData
 import com.openg2p.pod.viewmodel.PodViewModel
 import com.openg2p.pod.viewmodel.SubmissionState
@@ -163,7 +165,16 @@ fun PodFormScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("OpenG2P Proof of Delivery", fontWeight = FontWeight.Bold) },
+                title = { Text("Proof of Delivery", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_openg2p_logo),
+                        contentDescription = "OpenG2P Logo",
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(32.dp)
+                    )
+                },
                 actions = {
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(Icons.Filled.Settings, contentDescription = "Settings")
