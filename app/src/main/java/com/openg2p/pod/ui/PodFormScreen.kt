@@ -226,22 +226,34 @@ fun PodFormScreen(
                 value = disbursementId,
                 onValueChange = { viewModel.disbursementId.value = it },
                 label = { Text("Disbursement ID*") },
-                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = Color.Black
+                )
             )
             OutlinedTextField(
                 value = agentId,
                 onValueChange = { viewModel.agentId.value = it },
                 label = { Text("Agent ID") },
-                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = Color.Black
+                )
             )
             OutlinedTextField(
                 value = beneficiaryId,
                 onValueChange = { viewModel.beneficiaryId.value = it },
                 label = { Text("Beneficiary ID*") },
-                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = Color.Black
+                )
             )
 
             // Location Display and Refresh
@@ -333,17 +345,25 @@ fun PodFormScreen(
                 value = geoJson,
                 onValueChange = { viewModel.geoJson.value = it },
                 label = { Text("GeoJSON (Optional)") },
-                 modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp), // Allow multi-line
-                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                 maxLines = 5
+                modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp), // Allow multi-line
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                maxLines = 5,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = Color.Black
+                )
             )
             OutlinedTextField(
                 value = proofsJsonLd,
                 onValueChange = { viewModel.proofsJsonLd.value = it },
                 label = { Text("Proofs JSON-LD (Optional)") },
-                 modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp), // Allow multi-line
-                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                 maxLines = 5
+                modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp), // Allow multi-line
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                maxLines = 5,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = Color.Black
+                )
             )
 
              Spacer(modifier = Modifier.height(16.dp))
