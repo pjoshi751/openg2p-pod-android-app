@@ -2,6 +2,7 @@ package com.openg2p.pod.ui
 
 import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -28,16 +29,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.lifecycle.viewModelScope
 import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.permissions.*
 import com.google.android.gms.location.LocationServices
 import com.openg2p.pod.viewmodel.ImageData
 import com.openg2p.pod.viewmodel.PodViewModel
 import com.openg2p.pod.viewmodel.SubmissionState
+import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -101,11 +106,11 @@ fun PodFormScreen(viewModel: PodViewModel) {
     fun getTmpFileUri(context: Context): Uri {
          val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
         // Use cache directory for temporary files
-        val tmpFile = File.createTempFile("JPEG_${timeStamp}_\", \".jpg\", context.cacheDir).apply {
+        val tmpFile = File.createTempFile("JPEG_${timeStamp}_", ".jpg", context.cacheDir).apply {
              createNewFile()
              deleteOnExit() // Ensure cleanup if app crashes
         }
-        return FileProvider.getUriForFile(context, \"${context.packageName}.provider\", tmpFile)
+        return FileProvider.getUriForFile(context, "${context.packageName}.provider", tmpFile)
     }
 
     // Side effect for handling permissions and location fetching
@@ -221,7 +226,7 @@ fun PodFormScreen(viewModel: PodViewModel) {
                         },
                         enabled = permissionsState.allPermissionsGranted // Enable only if permissions granted
                     ) {
-                        Icon(Icons.Default.MyLocation, contentDescription = "Refresh Location")
+                        Icon(Icons.Filled.MyLocation, contentDescription = "Refresh Location")
                     }
                 }
             }
@@ -230,8 +235,10 @@ fun PodFormScreen(viewModel: PodViewModel) {
             Text("Photos (max 5)*", style = MaterialTheme.typography.titleMedium)
             ImagePreviewRow(
                  images = images,
-                 onRemoveImage = { viewModel.removeImage(it) },
-                 onDescriptionChange = { index, desc -> viewModel.updateImageDescription(index, desc) }
+                 onRemoveImage = { index -> viewModel.removeImage(index) },
+                 onDescriptionChange = { index, description ->
+                     viewModel.updateImageDescription(index, description)
+                 }
             )
              Row(
                  modifier = Modifier.fillMaxWidth(),
@@ -246,7 +253,7 @@ fun PodFormScreen(viewModel: PodViewModel) {
                             } else {
                                 // Show snackbar: max photos reached
                                  viewModel.viewModelScope.launch {
-                                     snackbarHostState.showSnackbar(\"Maximum 5 photos allowed.\")
+                                     snackbarHostState.showSnackbar("Maximum 5 photos allowed.")
                                  }
                             }
                         } else {
@@ -256,7 +263,7 @@ fun PodFormScreen(viewModel: PodViewModel) {
                     },
                      enabled = images.size < 5 && permissionsState.allPermissionsGranted // Enable only if permissions ok and not full
                 ) {
-                    Icon(Icons.Default.AddAPhoto, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                    Icon(Icons.Filled.AddAPhoto, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                     Text("Camera")
                 }
@@ -266,7 +273,7 @@ fun PodFormScreen(viewModel: PodViewModel) {
                              pickImageLauncher.launch("image/*")
                          } else {
                              viewModel.viewModelScope.launch {
-                                 snackbarHostState.showSnackbar(\"Maximum 5 photos allowed.\")
+                                 snackbarHostState.showSnackbar("Maximum 5 photos allowed.")
                              }
                          }
                     },
@@ -323,18 +330,19 @@ fun PodFormScreen(viewModel: PodViewModel) {
 @Composable
 fun ImagePreviewRow(
     images: List<ImageData>,
-    onRemoveImage: (ImageData) -> Unit,
+    onRemoveImage: (Int) -> Unit,
     onDescriptionChange: (Int, String) -> Unit
 ) {
     LazyRow(
         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        itemsIndexed(images) { index, imageData ->
+        itemsIndexed(images) { index, imageData -> 
             ImagePreviewItem(
-                imageData = imageData,
-                onRemoveClick = { onRemoveImage(imageData) },
-                 onDescriptionChange = { newDescription -> onDescriptionChange(index, newDescription) }
+                imageData = imageData, 
+                index = index, 
+                onRemoveClick = { onRemoveImage(index) },
+                onDescriptionChange = { newDescription -> onDescriptionChange(index, newDescription) }
             )
         }
     }
@@ -344,8 +352,9 @@ fun ImagePreviewRow(
 @Composable
 fun ImagePreviewItem(
     imageData: ImageData,
+    index: Int, 
     onRemoveClick: () -> Unit,
-     onDescriptionChange: (String) -> Unit
+    onDescriptionChange: (String) -> Unit
 ) {
     var description by remember { mutableStateOf(imageData.description) }
 
@@ -358,21 +367,23 @@ fun ImagePreviewItem(
         ) {
             Image(
                 painter = rememberAsyncImagePainter(imageData.uri),
-                contentDescription = "Selected image",
-                modifier = Modifier.fillMaxSize(),
+                contentDescription = "Selected image ${index + 1}",
+                modifier = Modifier
+                    .size(64.dp)
+                    .padding(end = 8.dp),
                 contentScale = ContentScale.Crop
             )
              // Remove Button
             IconButton(
                 onClick = onRemoveClick,
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
+                    .align(Alignment.TopEnd) // Use align from BoxScope
                     .padding(4.dp)
                     .size(24.dp)
                     .background(Color.Black.copy(alpha = 0.5f), CircleShape)
             ) {
                 Icon(
-                    Icons.Default.Close,
+                    Icons.Filled.Close,
                     contentDescription = "Remove image",
                     tint = Color.White,
                     modifier = Modifier.size(16.dp)
@@ -380,13 +391,10 @@ fun ImagePreviewItem(
             }
         }
          // Basic description field below image
-         OutlinedTextField(
+         TextField(
              value = description,
-            onValueChange = {
-                 description = it
-                 onDescriptionChange(it) // Pass updated description up
-             },
-             label = { Text("Desc.", fontSize = 10.sp) },
+            onValueChange = { onDescriptionChange(it) },
+            label = { Text("Description for Image") },
              modifier = Modifier.width(120.dp).padding(top = 4.dp),
             textStyle = LocalTextStyle.current.copy(fontSize = 12.sp),
             singleLine = true

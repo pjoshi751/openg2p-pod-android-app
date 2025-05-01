@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.ByteArrayOutputStream
@@ -68,8 +69,10 @@ class PodViewModel : ViewModel() {
         }
     }
 
-    fun removeImage(imageData: ImageData) {
-        images.remove(imageData)
+    fun removeImage(index: Int) {
+        if (index >= 0 && index < images.size) {
+            images.removeAt(index)
+        }
     }
 
     fun updateImageDescription(index: Int, description: String) {
@@ -123,9 +126,9 @@ class PodViewModel : ViewModel() {
 
                 // Prepare parts map
                 val parts = mutableMapOf<String, RequestBody>()
-                parts["disbursement_id"] = disbursementId.value.toRequestBody("text/plain".toMediaTypeOrNull())
-                parts["agent_id"] = agentId.value.toRequestBody("text/plain".toMediaTypeOrNull())
-                parts["beneficiary_id"] = beneficiaryId.value.toRequestBody("text/plain".toMediaTypeOrNull())
+                parts["disbursementId"] = disbursementId.value.toRequestBody("text/plain".toMediaTypeOrNull())
+                parts["agentId"] = agentId.value.toRequestBody("text/plain".toMediaTypeOrNull())
+                parts["beneficiaryId"] = beneficiaryId.value.toRequestBody("text/plain".toMediaTypeOrNull())
                 parts["latitude"] = latitude.value.toString().toRequestBody("text/plain".toMediaTypeOrNull())
                 parts["longitude"] = longitude.value.toString().toRequestBody("text/plain".toMediaTypeOrNull())
                 

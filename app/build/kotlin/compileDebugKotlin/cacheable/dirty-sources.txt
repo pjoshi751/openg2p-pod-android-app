@@ -1,5 +1,0 @@
-/Users/puneet/Documents/OpenG2P/repos/openg2p-pod-android-app/app/src/main/java/com/openg2p/pod/viewmodel/PodViewModel.kt
-/Users/puneet/Documents/OpenG2P/repos/openg2p-pod-android-app/app/src/main/java/com/openg2p/pod/MainActivity.kt
-/Users/puneet/Documents/OpenG2P/repos/openg2p-pod-android-app/app/src/main/java/com/openg2p/pod/ui/PodFormScreen.kt
-/Users/puneet/Documents/OpenG2P/repos/openg2p-pod-android-app/app/src/main/java/com/openg2p/pod/data/ApiService.kt
-/Users/puneet/Documents/OpenG2P/repos/openg2p-pod-android-app/app/src/main/java/com/openg2p/pod/data/ApiClient.kt
