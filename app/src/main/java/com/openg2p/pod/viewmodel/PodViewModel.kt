@@ -10,6 +10,8 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -49,6 +51,10 @@ sealed class SubmissionState {
 
 class PodViewModel(application: Application) : AndroidViewModel(application) {
 
+    companion object {
+        const val MAX_IMAGES = 5
+    }
+
     private val _tag = "PodViewModel"
 
     // Repository for settings
@@ -71,20 +77,29 @@ class PodViewModel(application: Application) : AndroidViewModel(application) {
     private val _submissionState = MutableStateFlow<SubmissionState>(SubmissionState.Idle)
     val submissionState: StateFlow<SubmissionState> = _submissionState.asStateFlow()
 
+    // Derived state to check if more images can be added
+    val canAddMoreImages: State<Boolean> = derivedStateOf { images.size < MAX_IMAGES }
+
+    // Function to add an image URI to the list
     fun addImage(uri: Uri) {
-        if (images.size < 5) {
-            images.add(ImageData(uri = uri))
+        viewModelScope.launch {
+            if (images.size >= MAX_IMAGES) {
+                Log.w(_tag, "Maximum number of images ($MAX_IMAGES) reached. Cannot add more.")
+                // Optionally set an error state or show a message via another state flow
+                return@launch
+            }
+            images.add(ImageData(uri))
         }
     }
 
     fun removeImage(index: Int) {
-        if (index >= 0 && index < images.size) {
+        if (index in images.indices) {
             images.removeAt(index)
         }
     }
 
     fun updateImageDescription(index: Int, description: String) {
-        if (index >= 0 && index < images.size) {
+        if (index in images.indices) {
             images[index] = images[index].copy(description = description)
         }
     }

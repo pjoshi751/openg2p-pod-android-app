@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -72,6 +73,7 @@ fun PodFormScreen(
     val images = viewModel.images // Note: Direct access to mutableStateList works
     val submissionState by viewModel.submissionState.collectAsState()
     val isLocationLoading by viewModel.isLocationLoading
+    val canAddMoreImages by viewModel.canAddMoreImages // Get the state for enabling buttons
 
     var tempImageUri by remember { mutableStateOf<Uri?>(null) }
 
@@ -301,7 +303,7 @@ fun PodFormScreen(
                  Button(
                     onClick = {
                         if (permissionsState.permissions.first { it.permission == Manifest.permission.CAMERA }.status.isGranted) {
-                             if (images.size < 5) {
+                             if (canAddMoreImages) { 
                                  tempImageUri = getTmpFileUri(context) // Get URI before launching
                                  tempImageUri?.let { takePictureLauncher.launch(it) }
                             } else {
@@ -315,7 +317,7 @@ fun PodFormScreen(
                             permissionsState.launchMultiplePermissionRequest()
                         }
                     },
-                     enabled = images.size < 5 && permissionsState.allPermissionsGranted // Enable only if permissions ok and not full
+                     enabled = canAddMoreImages // Disable button if limit reached
                 ) {
                     Icon(Icons.Filled.AddAPhoto, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
@@ -323,7 +325,7 @@ fun PodFormScreen(
                 }
                  Button(
                      onClick = {
-                         if (images.size < 5) {
+                         if (canAddMoreImages) { 
                              pickImageLauncher.launch("image/*")
                          } else {
                              viewModel.viewModelScope.launch {
@@ -331,7 +333,7 @@ fun PodFormScreen(
                              }
                          }
                     },
-                     enabled = images.size < 5 // Gallery doesn't strictly need permissions here
+                     enabled = canAddMoreImages // Disable button if limit reached
                  ) {
                      Icon(Icons.Default.Image, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                      Spacer(Modifier.size(ButtonDefaults.IconSpacing))
