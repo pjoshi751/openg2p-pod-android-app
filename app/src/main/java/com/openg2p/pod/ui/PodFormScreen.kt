@@ -230,7 +230,7 @@ fun PodFormScreen(
                 label = { Text("Disbursement ID*") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     focusedLabelColor = Color.Black
                 )
@@ -241,7 +241,7 @@ fun PodFormScreen(
                 label = { Text("Agent ID") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     focusedLabelColor = Color.Black
                 )
@@ -252,7 +252,7 @@ fun PodFormScreen(
                 label = { Text("Beneficiary ID*") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     focusedLabelColor = Color.Black
                 )
@@ -350,7 +350,7 @@ fun PodFormScreen(
                 modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp), // Allow multi-line
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 maxLines = 5,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     focusedLabelColor = Color.Black
                 )
@@ -362,7 +362,7 @@ fun PodFormScreen(
                 modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp), // Allow multi-line
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 maxLines = 5,
-                colors = TextFieldDefaults.outlinedTextFieldColors(
+                colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     focusedLabelColor = Color.Black
                 )
