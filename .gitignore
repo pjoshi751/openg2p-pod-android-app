@@ -37,6 +37,9 @@ captures/
 # Log Files
 *.log
 
+# Heap dump files
+*.hprof
+
 # Keystore files
 *.jks
 *.keystore
