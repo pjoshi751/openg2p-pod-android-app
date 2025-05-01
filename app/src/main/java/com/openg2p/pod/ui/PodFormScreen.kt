@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -148,7 +149,7 @@ fun PodFormScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Submit Proof of Delivery") },
+                title = { Text("OpenG2P Proof of Delivery", fontWeight = FontWeight.Bold) },
                 actions = {
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(Icons.Filled.Settings, contentDescription = "Settings")
@@ -370,9 +371,8 @@ fun ImagePreviewItem(
                 painter = rememberAsyncImagePainter(imageData.uri),
                 contentDescription = "Selected image ${index + 1}",
                 modifier = Modifier
-                    .size(64.dp)
-                    .padding(end = 8.dp),
-                contentScale = ContentScale.Crop
+                    .fillMaxSize(), // Fill the box
+                contentScale = ContentScale.Crop // Crop to fit
             )
              // Remove Button
             IconButton(
