@@ -49,14 +49,16 @@ import java.util.*
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun PodFormScreen(viewModel: PodViewModel) {
+fun PodFormScreen(
+    viewModel: PodViewModel,
+    context: Context = LocalContext.current,
+    onNavigateToSettings: () -> Unit
+) {
 
-    val context = LocalContext.current
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     val snackbarHostState = remember { SnackbarHostState() } // For showing messages
 
     // State from ViewModel
-    val serverUrl by viewModel.serverUrl
     val disbursementId by viewModel.disbursementId
     val agentId by viewModel.agentId
     val beneficiaryId by viewModel.beneficiaryId
@@ -144,7 +146,16 @@ fun PodFormScreen(viewModel: PodViewModel) {
 
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Submit Proof of Delivery") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Submit Proof of Delivery") },
+                actions = {
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                    }
+                }
+            )
+        },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
         Column(
@@ -168,16 +179,6 @@ fun PodFormScreen(viewModel: PodViewModel) {
                     color = MaterialTheme.colorScheme.error
                 )
             }
-
-            // Server URL Input
-             OutlinedTextField(
-                value = serverUrl,
-                onValueChange = { viewModel.serverUrl.value = it }, // Directly update ViewModel state
-                label = { Text("Server URL") },
-                 modifier = Modifier.fillMaxWidth(),
-                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-                singleLine = true
-            )
 
             // Required ID Fields
             OutlinedTextField(
@@ -304,7 +305,7 @@ fun PodFormScreen(viewModel: PodViewModel) {
                  maxLines = 5
             )
 
-             Spacer(modifier = Modifier.height(16.dp)) // Add space before submit button
+             Spacer(modifier = Modifier.height(16.dp))
 
             // Submit Button
             Button(

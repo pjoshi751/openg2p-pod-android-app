@@ -9,8 +9,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.openg2p.pod.ui.PodFormScreen
+import com.openg2p.pod.ui.SettingsScreen // Import SettingsScreen
 import com.openg2p.pod.ui.theme.OpenG2PPodAppTheme // Import the theme
 import com.openg2p.pod.viewmodel.PodViewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 
 class MainActivity : ComponentActivity() {
 
@@ -20,14 +24,28 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val navController = rememberNavController()
             // Apply the theme from the separate theme file
             OpenG2PPodAppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Pass the ViewModel instance to the screen
-                    PodFormScreen(viewModel = podViewModel)
+                    // Setup Navigation
+                    NavHost(navController = navController, startDestination = "podForm") {
+                        composable("podForm") {
+                            PodFormScreen(
+                                viewModel = podViewModel,
+                                onNavigateToSettings = { navController.navigate("settings") } // Add navigation callback
+                            )
+                        }
+                        composable("settings") {
+                            SettingsScreen(
+                                // SettingsViewModel is created internally by viewModel()
+                                onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+                    }
                 }
             }
         }

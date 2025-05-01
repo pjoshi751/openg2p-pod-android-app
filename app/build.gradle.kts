@@ -59,6 +59,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.navigation.compose) // Add Navigation Compose dependency
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.compose.material.icons.core) // Corrected alias to match TOML definition
     implementation(libs.androidx.compose.material.icons.extended) // Added extended icons
@@ -72,8 +75,14 @@ dependencies {
     // Location
     implementation(libs.play.services.location)
 
+    // Coroutines support for Play Services Tasks
+    implementation(libs.kotlinx.coroutines.play.services)
+
     // Image Loading
     implementation(libs.coil.compose)
+
+    // Preferences DataStore
+    implementation(libs.androidx.datastore.preferences)
 
     // Permissions
     implementation(libs.accompanist.permissions)

@@ -1,6 +1,7 @@
 package com.openg2p.pod.viewmodel
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,17 +10,21 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.openg2p.pod.data.ApiClient
+import com.openg2p.pod.data.SettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -29,6 +34,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -41,12 +47,14 @@ sealed class SubmissionState {
     data class Error(val message: String) : SubmissionState()
 }
 
-class PodViewModel : ViewModel() {
+class PodViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _tag = "PodViewModel"
 
+    // Repository for settings
+    private val settingsRepository = SettingsRepository(application.applicationContext)
+
     // --- Form State ---
-    val serverUrl = mutableStateOf("http://10.0.2.2:8000") // Default for emulator
     val disbursementId = mutableStateOf("")
     val agentId = mutableStateOf("")
     val beneficiaryId = mutableStateOf("")
@@ -116,13 +124,9 @@ class PodViewModel : ViewModel() {
         _submissionState.value = SubmissionState.Loading
         viewModelScope.launch {
             try {
-                val apiUrl = serverUrl.value
-                if (apiUrl.isBlank()) {
-                    _submissionState.value = SubmissionState.Error("Server URL cannot be empty")
-                    return@launch
-                }
-                
-                val apiService = ApiClient.getClient(apiUrl)
+                // Get the current server URL from DataStore
+                val currentServerUrl = settingsRepository.serverUrlFlow.first() // Get the latest value
+                val apiService = ApiClient.getClient(currentServerUrl)
 
                 // Prepare parts map
                 val parts = mutableMapOf<String, RequestBody>()
@@ -184,7 +188,6 @@ class PodViewModel : ViewModel() {
     }
 
     private fun validateForm(): Boolean {
-        if (serverUrl.value.isBlank()) return false
         if (disbursementId.value.isBlank()) return false
         if (agentId.value.isBlank()) return false
         if (beneficiaryId.value.isBlank()) return false
