@@ -173,7 +173,7 @@ class PodViewModel(application: Application) : AndroidViewModel(application) {
 
                 if (response.isSuccessful) {
                     _submissionState.value = SubmissionState.Success("Proof submitted successfully!")
-                    clearForm()
+                    clearForm() // Clear form *after* setting Success state
                 } else {
                     val errorBody = response.errorBody()?.string() ?: "Unknown error"
                     Log.e(_tag, "API Error: ${response.code()} - $errorBody")
@@ -189,7 +189,6 @@ class PodViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun validateForm(): Boolean {
         if (disbursementId.value.isBlank()) return false
-        if (agentId.value.isBlank()) return false
         if (beneficiaryId.value.isBlank()) return false
         if (latitude.value == null || longitude.value == null) return false
         if (images.isEmpty()) return false
@@ -219,11 +218,10 @@ class PodViewModel(application: Application) : AndroidViewModel(application) {
         images.clear()
         geoJson.value = ""
         proofsJsonLd.value = ""
-        _submissionState.value = SubmissionState.Idle
     }
 
     fun resetSubmissionState() {
-         _submissionState.value = SubmissionState.Idle
+        _submissionState.value = SubmissionState.Idle
     }
 
     // --- Image Compression ---

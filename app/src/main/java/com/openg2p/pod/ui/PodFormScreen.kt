@@ -130,21 +130,25 @@ fun PodFormScreen(
         }
     }
 
-    // Side effect for showing submission status messages
+    // Effect to show Snackbar based on submission state
     LaunchedEffect(submissionState) {
+        Log.d("PodFormScreen", "Submission state changed: $submissionState")
         when (val state = submissionState) {
             is SubmissionState.Success -> {
-                snackbarHostState.showSnackbar(state.message, duration = SnackbarDuration.Short)
+                Log.d("PodFormScreen", "Showing Success Snackbar: ${state.message}")
+                snackbarHostState.showSnackbar(state.message)
+                Log.d("PodFormScreen", "Snackbar shown, resetting state.")
                 viewModel.resetSubmissionState() // Reset state after showing message
             }
             is SubmissionState.Error -> {
-                snackbarHostState.showSnackbar(state.message, duration = SnackbarDuration.Long)
-                 viewModel.resetSubmissionState() // Reset state after showing message
+                Log.d("PodFormScreen", "Showing Error Snackbar: ${state.message}")
+                snackbarHostState.showSnackbar("Error: ${state.message}")
+                Log.d("PodFormScreen", "Snackbar shown, resetting state.")
+                viewModel.resetSubmissionState() // Reset state after showing message
             }
-            else -> {} // Idle or Loading
+            else -> { Log.d("PodFormScreen", "State is Idle or Loading.") }
         }
     }
-
 
     Scaffold(
         topBar = {
@@ -157,7 +161,7 @@ fun PodFormScreen(
                 }
             )
         },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) } // Add SnackbarHost to display messages
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -192,7 +196,7 @@ fun PodFormScreen(
             OutlinedTextField(
                 value = agentId,
                 onValueChange = { viewModel.agentId.value = it },
-                label = { Text("Agent ID*") },
+                label = { Text("Agent ID") },
                  modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
