@@ -434,8 +434,11 @@ fun ImagePreviewItem(
          // Basic description field below image
          TextField(
              value = description,
-            onValueChange = { onDescriptionChange(it) },
-            label = { Text("Description for Image") },
+            onValueChange = { newValue ->
+                description = newValue // Update local state
+                onDescriptionChange(newValue) // Notify parent/ViewModel
+            },
+             label = { Text("Description for Image") },
              modifier = Modifier.width(120.dp).padding(top = 4.dp),
             textStyle = LocalTextStyle.current.copy(fontSize = 12.sp),
             singleLine = true
