@@ -55,18 +55,17 @@ import java.util.*
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun PodFormScreen(
+    viewModel: PodViewModel = hiltViewModel(),
+    agentId: String,
     context: Context = LocalContext.current,
     onNavigateToSettings: () -> Unit
 ) {
-
-    val viewModel: PodViewModel = hiltViewModel()
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     val snackbarHostState = remember { SnackbarHostState() } // For showing messages
 
     // State from ViewModel
     val disbursementId by viewModel.disbursementId
-    val agentId by viewModel.agentId
     val beneficiaryId by viewModel.beneficiaryId
     val latitude by viewModel.latitude
     val longitude by viewModel.longitude
@@ -213,6 +212,25 @@ fun PodFormScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
+            // Display Agent ID (read-only)
+            OutlinedTextField(
+                value = agentId,
+                onValueChange = { /* Do nothing, read-only */ },
+                label = { Text("Agent ID") },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = false, // Make it non-editable
+                colors = OutlinedTextFieldDefaults.colors( // Optional: Customize disabled appearance
+                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                    disabledBorderColor = MaterialTheme.colorScheme.outline,
+                    disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp)) // Add space before the next field
+
             // Request Permissions Button (shown if needed)
             if (!permissionsState.allPermissionsGranted) {
                 Button(onClick = { permissionsState.launchMultiplePermissionRequest() }) {
@@ -230,17 +248,6 @@ fun PodFormScreen(
                 value = disbursementId,
                 onValueChange = { viewModel.disbursementId.value = it },
                 label = { Text("Disbursement ID*") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    focusedLabelColor = Color.Black
-                )
-            )
-            OutlinedTextField(
-                value = agentId,
-                onValueChange = { viewModel.agentId.value = it },
-                label = { Text("Agent ID") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
@@ -374,7 +381,7 @@ fun PodFormScreen(
 
             // Submit Button
             Button(
-                onClick = { viewModel.submitProof(context) },
+                onClick = { viewModel.submitProof(context, agentId) },
                 enabled = submissionState != SubmissionState.Loading && permissionsState.allPermissionsGranted, // Disable during loading or if permissions missing
                  modifier = Modifier.fillMaxWidth()
             ) {

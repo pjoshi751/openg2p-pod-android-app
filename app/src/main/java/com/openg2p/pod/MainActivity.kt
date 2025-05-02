@@ -12,23 +12,22 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
 import com.openg2p.pod.ui.PodFormScreen
 import com.openg2p.pod.ui.SettingsScreen // Import SettingsScreen
 import com.openg2p.pod.ui.screens.LoginScreen // Import LoginScreen
 import com.openg2p.pod.ui.theme.OpenG2PPodAppTheme // Import the theme
-import com.openg2p.pod.viewmodel.PodViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 // Navigation Routes
 const val LOGIN_ROUTE = "login"
-const val FORM_ROUTE = "form"
+const val FORM_ROUTE = "form/{agentId}" // Add agentId argument placeholder
+const val FORM_ROUTE_BASE = "form"
 const val SETTINGS_ROUTE = "settings"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    // Use the by viewModels() delegate for ViewModel creation
-    private val podViewModel: PodViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,21 +50,26 @@ fun AppNavigation(navController: NavHostController) {
     NavHost(navController = navController, startDestination = LOGIN_ROUTE) {
         composable(LOGIN_ROUTE) {
             LoginScreen(
-                onLoginSuccess = {
-                    navController.navigate(FORM_ROUTE) {
-                        // Pop login screen off the back stack
-                        popUpTo(LOGIN_ROUTE) {
-                            inclusive = true
-                        }
+                // Pass agent ID on successful login
+                onLoginSuccess = { agentId ->
+                    navController.navigate("$FORM_ROUTE_BASE/$agentId") {
+                        // Prevent multiple copies of login screen on back press
+                        popUpTo(LOGIN_ROUTE) { inclusive = true }
                         // Avoid multiple copies of the form screen
                         launchSingleTop = true
                     }
                 },
-                onNavigateToSettings = { navController.navigate(SETTINGS_ROUTE) }
+                onNavigateToSettings = { navController.navigate(SETTINGS_ROUTE) } // Navigate to settings
             )
         }
-        composable(FORM_ROUTE) {
-            PodFormScreen(
+        composable(
+            route = FORM_ROUTE,
+            arguments = listOf(navArgument("agentId") { type = NavType.StringType })
+        ) {
+            backStackEntry ->
+            val agentId = backStackEntry.arguments?.getString("agentId") ?: ""
+            PodFormScreen( // Pass agentId to the screen
+                agentId = agentId,
                 onNavigateToSettings = { navController.navigate(SETTINGS_ROUTE) }
             )
         }

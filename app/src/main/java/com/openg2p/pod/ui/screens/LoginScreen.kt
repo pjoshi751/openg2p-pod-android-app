@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
-    onLoginSuccess: () -> Unit,
+    onLoginSuccess: (agentId: String) -> Unit, // Accept agentId
     onNavigateToSettings: () -> Unit
 ) {
     // The 'by' delegate automatically observes the State object from mutableStateOf
@@ -34,7 +34,7 @@ fun LoginScreen(
     // Effect to trigger navigation when login is successful
     LaunchedEffect(uiState.loginSuccess) {
         if (uiState.loginSuccess) {
-            onLoginSuccess()
+            onLoginSuccess(uiState.agentId) // Pass agentId
             viewModel.resetLoginStatus() // Reset status after navigation
         }
     }

@@ -65,7 +65,6 @@ class PodViewModel @Inject constructor(
 
     // --- Form State ---
     val disbursementId = mutableStateOf("")
-    val agentId = mutableStateOf("")
     val beneficiaryId = mutableStateOf("")
     val geoJson = mutableStateOf("") // Optional
     val proofsJsonLd = mutableStateOf("") // Optional
@@ -136,7 +135,7 @@ class PodViewModel @Inject constructor(
         }
     }
 
-    fun submitProof(context: Context) {
+    fun submitProof(context: Context, agentId: String) {
         if (!validateForm()) return
 
         _submissionState.value = SubmissionState.Loading
@@ -149,7 +148,7 @@ class PodViewModel @Inject constructor(
                 // Prepare parts map
                 val parts = mutableMapOf<String, RequestBody>()
                 parts["disbursement_id"] = disbursementId.value.toRequestBody("text/plain".toMediaTypeOrNull())
-                parts["agent_id"] = agentId.value.toRequestBody("text/plain".toMediaTypeOrNull())
+                parts["agent_id"] = agentId.toRequestBody("text/plain".toMediaTypeOrNull())
                 parts["beneficiary_id"] = beneficiaryId.value.toRequestBody("text/plain".toMediaTypeOrNull())
                 parts["latitude"] = latitude.value.toString().toRequestBody("text/plain".toMediaTypeOrNull())
                 parts["longitude"] = longitude.value.toString().toRequestBody("text/plain".toMediaTypeOrNull())
@@ -229,7 +228,6 @@ class PodViewModel @Inject constructor(
     fun clearForm() {
         // Keep serverUrl
         disbursementId.value = ""
-        agentId.value = ""
         beneficiaryId.value = ""
         latitude.value = null
         longitude.value = null
