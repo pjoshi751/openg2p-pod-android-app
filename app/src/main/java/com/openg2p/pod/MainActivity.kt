@@ -60,7 +60,8 @@ fun AppNavigation(navController: NavHostController) {
                         // Avoid multiple copies of the form screen
                         launchSingleTop = true
                     }
-                }
+                },
+                onNavigateToSettings = { navController.navigate(SETTINGS_ROUTE) }
             )
         }
         composable(FORM_ROUTE) {

@@ -1,5 +1,6 @@
 package com.openg2p.pod.viewmodel
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,7 +16,9 @@ import kotlinx.coroutines.launch
 data class LoginUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val loginSuccess: Boolean = false
+    val loginSuccess: Boolean = false,
+    val agentId: String = "",
+    val password: String = ""
 )
 
 @HiltViewModel
@@ -23,36 +26,44 @@ class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
-    var agentId by mutableStateOf("")
-    var password by mutableStateOf("")
-    var uiState by mutableStateOf(LoginUiState())
-        private set
+    private val _uiState = mutableStateOf(LoginUiState()) // Private MutableState
+    val uiState: State<LoginUiState> = _uiState // Public immutable State
+
+    // Update Agent ID in the state
+    fun onAgentIdChanged(newAgentId: String) {
+        _uiState.value = _uiState.value.copy(agentId = newAgentId)
+    }
+
+    // Update Password in the state
+    fun onPasswordChanged(newPassword: String) {
+        _uiState.value = _uiState.value.copy(password = newPassword)
+    }
 
     fun login() {
         // Reset error message immediately on attempt
-        uiState = uiState.copy(errorMessage = null)
+        _uiState.value = _uiState.value.copy(errorMessage = null)
 
-        if (agentId.isBlank() || password.isBlank()) {
-            uiState = uiState.copy(errorMessage = "Agent ID and Password cannot be empty.")
+        if (_uiState.value.agentId.isBlank() || _uiState.value.password.isBlank()) {
+            _uiState.value = _uiState.value.copy(errorMessage = "Agent ID and Password cannot be empty.")
             return
         }
 
-        uiState = uiState.copy(isLoading = true, errorMessage = null)
+        _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
         viewModelScope.launch {
-            when (val result = authRepository.login(agentId, password)) {
+            when (val result = authRepository.login(_uiState.value.agentId, _uiState.value.password)) {
                 is AuthResult.Success -> {
                     // Role check is now inside AuthRepository
-                    uiState = uiState.copy(isLoading = false, loginSuccess = true)
+                    _uiState.value = _uiState.value.copy(isLoading = false, loginSuccess = true, errorMessage = null)
                 }
                 is AuthResult.Error -> {
-                    uiState = uiState.copy(isLoading = false, errorMessage = result.message)
+                    _uiState.value = _uiState.value.copy(isLoading = false, errorMessage = result.message)
                 }
             }
         }
     }
 
     fun resetLoginStatus() {
-        uiState = uiState.copy(loginSuccess = false)
+        _uiState.value = _uiState.value.copy(loginSuccess = false)
     }
 }
