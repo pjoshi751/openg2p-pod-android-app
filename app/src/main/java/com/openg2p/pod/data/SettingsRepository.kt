@@ -17,13 +17,17 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 
 class SettingsRepository(private val context: Context) {
 
-    // Define the key for the server URL preference
-    private object PreferencesKeys {
-        val SERVER_URL = stringPreferencesKey("server_url")
+    // Define default values
+    companion object {
+        const val DEFAULT_SERVER_URL = "http://10.0.2.2:8000" // Default for emulator
+        const val DEFAULT_KEYCLOAK_URL = "https://keycloak.openg2p.org/realms/Agents/protocol/openid-connect/token"
     }
 
-    // Default URL if none is set (emulator default)
-    private val defaultServerUrl = "http://10.0.2.2:8000"
+    // Define the keys for the server URL and Keycloak URL preferences
+    private object PreferencesKeys {
+        val SERVER_URL = stringPreferencesKey("server_url")
+        val KEYCLOAK_URL = stringPreferencesKey("keycloak_url")
+    }
 
     // Flow to observe the server URL preference
     val serverUrlFlow: Flow<String> = context.dataStore.data
@@ -37,13 +41,25 @@ class SettingsRepository(private val context: Context) {
         }
         .map { preferences ->
             // Get the string value associated with the key, defaulting if not set
-            preferences[PreferencesKeys.SERVER_URL] ?: defaultServerUrl
+            preferences[PreferencesKeys.SERVER_URL] ?: DEFAULT_SERVER_URL
         }
+
+    // Flow to expose the Keycloak URL setting
+    val keycloakUrlFlow: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.KEYCLOAK_URL] ?: DEFAULT_KEYCLOAK_URL
+    }
 
     // Function to save the server URL
     suspend fun saveServerUrl(url: String) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.SERVER_URL] = url
+        }
+    }
+
+    // Function to save the Keycloak URL
+    suspend fun saveKeycloakUrl(url: String) {
+        context.dataStore.edit { settings ->
+            settings[PreferencesKeys.KEYCLOAK_URL] = url
         }
     }
 }

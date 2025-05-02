@@ -9,23 +9,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.openg2p.pod.viewmodel.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    settingsViewModel: SettingsViewModel = viewModel(),
     onNavigateBack: () -> Unit
 ) {
-    val currentServerUrl by settingsViewModel.serverUrl.collectAsState()
-    var textFieldValue by remember { mutableStateOf(currentServerUrl) }
+    val viewModel: SettingsViewModel = hiltViewModel()
+    val currentServerUrl by viewModel.serverUrl.collectAsState()
+    val keycloakUrl by viewModel.keycloakUrl.collectAsState()
+    var serverUrlTextFieldValue by remember { mutableStateOf(currentServerUrl) }
+    var keycloakUrlTextFieldValue by remember { mutableStateOf(keycloakUrl) }
     val context = LocalContext.current
 
     // Update text field if the underlying saved value changes
     LaunchedEffect(currentServerUrl) {
-        if (textFieldValue != currentServerUrl) {
-            textFieldValue = currentServerUrl
+        if (serverUrlTextFieldValue != currentServerUrl) {
+            serverUrlTextFieldValue = currentServerUrl
+        }
+    }
+
+    LaunchedEffect(keycloakUrl) {
+        if (keycloakUrlTextFieldValue != keycloakUrl) {
+            keycloakUrlTextFieldValue = keycloakUrl
         }
     }
 
@@ -50,17 +58,26 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OutlinedTextField(
-                value = textFieldValue,
-                onValueChange = { textFieldValue = it },
+                value = serverUrlTextFieldValue,
+                onValueChange = { serverUrlTextFieldValue = it },
                 label = { Text("Server URL") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
+            OutlinedTextField(
+                value = keycloakUrlTextFieldValue,
+                onValueChange = { keycloakUrlTextFieldValue = it },
+                label = { Text("Keycloak Token URL") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
             Button(onClick = {
-                settingsViewModel.updateServerUrl(textFieldValue)
+                viewModel.updateServerUrl(serverUrlTextFieldValue)
+                viewModel.saveKeycloakUrl(keycloakUrlTextFieldValue)
                 // Optionally show a toast or snackbar
-                android.widget.Toast.makeText(context, "Server URL saved", android.widget.Toast.LENGTH_SHORT).show()
+                android.widget.Toast.makeText(context, "Settings saved", android.widget.Toast.LENGTH_SHORT).show()
                 onNavigateBack() // Navigate back after saving
             }) {
                 Text("Save Settings")

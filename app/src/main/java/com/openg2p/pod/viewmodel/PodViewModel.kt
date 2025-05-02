@@ -1,7 +1,6 @@
 package com.openg2p.pod.viewmodel
 
 import android.annotation.SuppressLint
-import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -13,13 +12,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.openg2p.pod.data.ApiClient
 import com.openg2p.pod.data.SettingsRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -49,16 +51,17 @@ sealed class SubmissionState {
     data class Error(val message: String) : SubmissionState()
 }
 
-class PodViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class PodViewModel @Inject constructor(
+    @ApplicationContext private val application: Context,
+    private val settingsRepository: SettingsRepository
+) : ViewModel() {
 
     companion object {
         const val MAX_IMAGES = 5
     }
 
     private val _tag = "PodViewModel"
-
-    // Repository for settings
-    private val settingsRepository = SettingsRepository(application.applicationContext)
 
     // --- Form State ---
     val disbursementId = mutableStateOf("")

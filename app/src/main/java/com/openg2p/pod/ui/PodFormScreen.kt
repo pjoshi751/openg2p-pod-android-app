@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import coil.compose.rememberAsyncImagePainter
 import com.google.accompanist.permissions.*
@@ -54,10 +55,11 @@ import java.util.*
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun PodFormScreen(
-    viewModel: PodViewModel,
     context: Context = LocalContext.current,
     onNavigateToSettings: () -> Unit
 ) {
+
+    val viewModel: PodViewModel = hiltViewModel()
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
     val snackbarHostState = remember { SnackbarHostState() } // For showing messages

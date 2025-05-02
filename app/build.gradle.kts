@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.google.dagger.hilt.android") // Apply Hilt plugin using explicit ID
+    id("org.jetbrains.kotlin.kapt")      // Apply KAPT plugin using explicit ID
 }
 
 android {
@@ -60,17 +62,25 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.navigation.compose) // Add Navigation Compose dependency
+    implementation(libs.androidx.navigation.compose) 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.compose.material.icons.core) // Corrected alias to match TOML definition
-    implementation(libs.androidx.compose.material.icons.extended) // Added extended icons
+    implementation(libs.androidx.compose.material.icons.core) 
+    implementation(libs.androidx.compose.material.icons.extended) 
+
+    // Hilt for Dependency Injection
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose) // For hiltViewModel() in Compose
+    kapt(libs.hilt.compiler) // Add KAPT dependency for Hilt compiler
 
     // Networking
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
-    implementation(libs.okhttp) // OkHttp is needed for multipart
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0") 
+    implementation("com.google.code.gson:gson:2.10")
+
+    // JWT Decoding
+    implementation("com.auth0.android:jwtdecode:2.0.2")
 
     // Location
     implementation(libs.play.services.location)
